@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portfolio-db
+  labels:
+    app: portfolio-db
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: portfolio-db
+  template:
+    metadata:
+      labels:
+        app: portfolio-db
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: postgresql
+          image: quay.io/sclorg/postgresql-16-c9s@sha256:66566a27e08ec28d739c5fc54dcd47a4f0b505682d469589e9d493ae0b7bc9ab
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: postgresql
+              containerPort: 5432
+          env:
+            - name: POSTGRESQL_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: personal-portfolio-config
+                  key: DB_USER
+            - name: POSTGRESQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: personal-portfolio-config
+                  key: DB_NAME
+            - name: POSTGRESQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: portfolio-db-auth
+                  key: DB_PASSWORD
+            - name: POSTGRESQL_LOG_DESTINATION
+              value: /dev/stderr
+            - name: POSTGRESQL_MAX_CONNECTIONS
+              value: "30"
+            - name: POSTGRESQL_SHARED_BUFFERS
+              value: 32MB
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          startupProbe:
+            exec:
+              command: [pg_isready, -h, 127.0.0.1, -p, "5432"]
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 36
+          readinessProbe:
+            exec:
+              command: [pg_isready, -h, 127.0.0.1, -p, "5432"]
+            periodSeconds: 5
+            timeoutSeconds: 3
+          livenessProbe:
+            exec:
+              command: [pg_isready, -h, 127.0.0.1, -p, "5432"]
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 6
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/pgsql/data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: portfolio-db-data
