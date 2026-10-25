@@ -91,53 +91,85 @@ OpenShift 콘솔의 `Copy login command`로 로그인하고 본인 프로젝트�
 
 배포 절차(`~/PlatformLab/students/202255521` 위치에서 진행합니다.)
 ```bash
+oc delete -f k8s/
 oc apply -f k8s/
 oc rollout status deployment/portfolio-db --timeout=240s
 oc rollout status deployment/personal-portfolio --timeout=240s
-oc get pods,svc,route,pvc
+oc get all 
 ```
 
 예상 출력
 ```bash
+bash-5.1 ~/PlatformLab/students/202255521 $ oc delete -f k8s/
+configmap "personal-portfolio-config" deleted from kmwook-dev namespace
+deployment.apps "portfolio-db" deleted from kmwook-dev namespace
+service "portfolio-db" deleted from kmwook-dev namespace
+deployment.apps "personal-portfolio" deleted from kmwook-dev namespace
+persistentvolumeclaim "portfolio-db-data" deleted from kmwook-dev namespace
+route.route.openshift.io "personal-portfolio" deleted from kmwook-dev namespace
+configmap "personal-portfolio-runtime-00" deleted from kmwook-dev namespace
+configmap "personal-portfolio-runtime-01" deleted from kmwook-dev namespace
+configmap "personal-portfolio-runtime-02" deleted from kmwook-dev namespace
+configmap "personal-portfolio-runtime-03" deleted from kmwook-dev namespace
+configmap "personal-portfolio-runtime-04" deleted from kmwook-dev namespace
+secret "portfolio-db-auth" deleted from kmwook-dev namespace
+service "personal-portfolio" deleted from kmwook-dev namespace
 bash-5.1 ~/PlatformLab/students/202255521 $ oc apply -f k8s/
-configmap/personal-portfolio-config unchanged
+configmap/personal-portfolio-config created
 deployment.apps/portfolio-db created
-service/portfolio-db unchanged
+service/portfolio-db created
 deployment.apps/personal-portfolio created
-persistentvolumeclaim/portfolio-db-data unchanged
-route.route.openshift.io/personal-portfolio unchanged
-configmap/personal-portfolio-runtime-00 unchanged
-configmap/personal-portfolio-runtime-01 unchanged
-configmap/personal-portfolio-runtime-02 unchanged
-configmap/personal-portfolio-runtime-03 unchanged
-configmap/personal-portfolio-runtime-04 unchanged
-secret/portfolio-db-auth configured
-service/personal-portfolio unchanged
+persistentvolumeclaim/portfolio-db-data created
+route.route.openshift.io/personal-portfolio created
+configmap/personal-portfolio-runtime-00 created
+configmap/personal-portfolio-runtime-01 created
+configmap/personal-portfolio-runtime-02 created
+configmap/personal-portfolio-runtime-03 created
+configmap/personal-portfolio-runtime-04 created
+secret/portfolio-db-auth created
+service/personal-portfolio created
 bash-5.1 ~/PlatformLab/students/202255521 $ oc rollout status deployment/portfolio-db --timeout=240s
 deployment "portfolio-db" successfully rolled out
 bash-5.1 ~/PlatformLab/students/202255521 $ oc rollout status deployment/personal-portfolio --timeout=240s
 deployment "personal-portfolio" successfully rolled out
-bash-5.1 ~/PlatformLab/students/202255521 $ oc get pods,svc,route,pvc
+bash-5.1 ~/PlatformLab/students/202255521 $ oc get all
+Warning: apps.openshift.io/v1 DeploymentConfig is deprecated in v4.14+, unavailable in v4.10000+
+Warning: kubevirt.io/v1 VirtualMachineInstancePresets is now deprecated and will be removed in v2.
 NAME                                             READY   STATUS    RESTARTS   AGE
-pod/personal-portfolio-7547d9fd9-mw26v           1/1     Running   0          2m2s
-pod/portfolio-db-77d45fcc4d-qcs7x                1/1     Running   0          2m2s
-pod/workspace01dd37a5b89f44e1-584f4bd4c4-ctfvx   2/2     Running   0          3m14s
+pod/personal-portfolio-7547d9fd9-p86cb           1/1     Running   0          31s
+pod/portfolio-db-77d45fcc4d-lqm8r                1/1     Running   0          31s
+pod/workspace01dd37a5b89f44e1-584f4bd4c4-4ttz7   2/2     Running   0          14m
 
 NAME                                        TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                               AGE
-service/httpd-example                       ClusterIP   172.30.105.167   <none>        8080/TCP                              22d
-service/modelmesh-serving                   ClusterIP   None             <none>        8033/TCP,8008/TCP,8443/TCP,2112/TCP   22d
-service/personal-portfolio                  ClusterIP   172.30.116.218   <none>        8080/TCP                              51m
-service/portfolio-db                        ClusterIP   172.30.227.45    <none>        5432/TCP                              51m
-service/workspace01dd37a5b89f44e1-service   ClusterIP   172.30.57.65     <none>        4444/TCP                              25m
+service/httpd-example                       ClusterIP   172.30.105.167   <none>        8080/TCP                              23d
+service/modelmesh-serving                   ClusterIP   None             <none>        8033/TCP,8008/TCP,8443/TCP,2112/TCP   23d
+service/personal-portfolio                  ClusterIP   172.30.93.198    <none>        8080/TCP                              31s
+service/portfolio-db                        ClusterIP   172.30.182.251   <none>        5432/TCP                              31s
+service/workspace01dd37a5b89f44e1-service   ClusterIP   172.30.210.20    <none>        4444/TCP                              14m
+
+NAME                                        READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/personal-portfolio          1/1     1            1           31s
+deployment.apps/portfolio-db                1/1     1            1           31s
+deployment.apps/workspace01dd37a5b89f44e1   1/1     1            1           14m
+
+NAME                                                   DESIRED   CURRENT   READY   AGE
+replicaset.apps/personal-portfolio-7547d9fd9           1         1         1       31s
+replicaset.apps/portfolio-db-77d45fcc4d                1         1         1       31s
+replicaset.apps/workspace01dd37a5b89f44e1-584f4bd4c4   1         1         1       14m
+
+NAME                                           TYPE     FROM   LATEST
+buildconfig.build.openshift.io/httpd-example   Source   Git    1
+
+NAME                                       TYPE     FROM          STATUS     STARTED       DURATION
+build.build.openshift.io/httpd-example-1   Source   Git@658aff0   Complete   3 weeks ago   38s
+
+NAME                                           IMAGE REPOSITORY                                                                                     TAGS     UPDATED
+imagestream.image.openshift.io/httpd-example   default-route-openshift-image-registry.apps.rm3.7wse.p1.openshiftapps.com/kmwook-dev/httpd-example   latest   3 weeks ago
 
 NAME                                          HOST/PORT                                                          PATH   SERVICES             PORT    TERMINATION     WILDCARD
 route.route.openshift.io/httpd-example        httpd-example-kmwook-dev.apps.rm3.7wse.p1.openshiftapps.com               httpd-example        <all>                   None
 route.route.openshift.io/personal-portfolio   personal-portfolio-kmwook-dev.apps.rm3.7wse.p1.openshiftapps.com          personal-portfolio   http    edge/Redirect   None
-
-NAME                                      STATUS    VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
-persistentvolumeclaim/mongodb-data        Bound     pvc-68c8e0c2-7766-4a2a-8db0-38b02b966893   1Gi        RWO            gp3            <unset>                 22d
-persistentvolumeclaim/my-storage-claim    Pending                                                                        gp3            <unset>                 22d
-persistentvolumeclaim/portfolio-db-data   Bound     pvc-8ebd6ed8-c99c-4ed2-8b6d-faca00adbc04   1Gi        RWO            gp3            <unset>                 51m
+Error from server (Forbidden): applications.app.k8s.io is forbidden: User "kmwook" cannot list resource "applications" in API group "app.k8s.io" in the namespace "kmwook-dev"
 ```
 
 이후 아래 명령어로 출력되는 HTTPS 주소로 브라우저에서 접속합니다.
@@ -159,17 +191,6 @@ curl https://ROUTE_HOST/api/guestbook
 정상 상태는 HTTP 200입니다. 방명록 목록은 `items`, `nextCursor`가 있는 JSON으로 반환됩니다.
 
 ## 5. 배포 결과
-
-| 확인 항목 | 기록 |
-| --- | --- |
-| introduce-me Route 접속 | 성공. 자기소개·프로젝트·방명록 화면 캡처 첨부 |
-| 실제 Route URL | [자기소개 · 방명록 접속](https://personal-portfolio-kmwook-dev.apps.rm3.7wse.p1.openshiftapps.com) |
-| 배포 일시 | 별도 기록 필요 |
-| 웹·DB READY | `oc get all` 캡처에서 두 Pod가 `Running`, `READY 1/1`이고 두 Deployment가 `AVAILABLE 1`임을 확인 |
-| PVC Bound | 별도 확인·캡처 필요 |
-| 방명록 글 조회 | 저장된 글이 화면에 표시되는 것을 확인 |
-| 웹·DB 재시작 후 글 보존 | 실제 결과 기록 필요 |
-| PVC 포함 전체 삭제 후 YAML만으로 재배포 | 실제 결과 기록 필요 |
 
 ### OpenShift 리소스 배포 상태
 
@@ -203,7 +224,7 @@ curl https://ROUTE_HOST/api/guestbook
 
 ## 7. AI·참고자료 활용 내역
 
-- OpenAI Codex(ChatGPT 6.1 sol): 방명록 서버, DB, 배포 파일 개발에 사용했습니다.
+- OpenAI Codex(ChatGPT 6.1 sol): 방명록 서버, DB, 배포 파일 개발에 사용했습니다. 추가로 
 - [OpenShift CLI 문서](https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/cli_tools/openshift-cli-oc): 로그인, 배포, 조회에 사용되는 명령어를 참고했습니다.
 - [OpenShift Route 문서](https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/ingress_and_load_balancing/routes): Service 외부 공개와 edge TLS.
 - [SCLorg PostgreSQL 이미지 문서](https://github.com/sclorg/postgresql-container/blob/master/16/root/usr/share/container-scripts/postgresql/README.md): 홈페이지 개발 중 DB 환경변수와 데이터 경로를 참고했습니다.
