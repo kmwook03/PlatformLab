@@ -1,4 +1,4 @@
-# 202255521 김민욱
+# 202255521 김민욱: 김민욱 포트폴리오
 
 ## 1. 컨테이너 소개
 
@@ -45,7 +45,7 @@ students/202255521/
 
 웹 liveness는 `/health/live`, readiness는 `/health/ready`를 사용합니다. DB 장애 중 웹 프로세스는 살아 있어도 readiness가 실패하므로 Route에서 해당 Pod로 트래픽이 전달되지 않을 수 있습니다. DB Probe는 `pg_isready`를 사용합니다.
 
-번들은 일반 `oc apply`의 annotation 크기 제한을 고려해 128KiB 이하의 조각 5개로 나눴습니다. 의존성은 미리 번들에 포함되어 Pod 기동 시 외부 다운로드를 하지 않습니다. YAML은 namespace, 고정 UID, Route host, status 등 클러스터 자동 생성 필드를 지정하지 않습니다.
+번들은 일반 `oc apply`의 annotation 크기 제한을 고려해 128KiB 이하의 조각 5개로 나누었고, 의존성을 미리 번들에 포함시켜 Pod 기동 시 외부 다운로드를 하지 않도록 설계했습니다. 
 
 ## 3. 사용 이미지
 
@@ -198,7 +198,8 @@ curl https://ROUTE_HOST/api/guestbook
 ## 6. 어려웠던 점과 해결 과정
 
 - ConfigMap 하나에 실행 번들을 넣어서 일반 apply의 annotation 크기 제한을 넘어 오류가 발생했었습니다. 실행 번들을 작은 ConfigMap 5개로 나누는 방식으로 해결했습니다.
-- `TRUST_PROXY=false`이므로 라우터를 통해 들어오는 방문자가 분당 5회 작성 한도를 공유할 수 있습니다. 연속 테스트에서 429가 나오면 잠시 기다립니다. 방문자별 제한은 실제 router CIDR를 확인한 뒤 설정해야 합니다.
+- 컨테이너 내부에만 데이터를 저장했더니 Pod가 교체될 때 기존에 작성된 방명록이 사라지는 문제가 있었습니다. PostgreSQL 데이터 디렉터리를 1Gi PVC에 연결해 같은 PVC를 유지하여 데이터를 재사용하도록 해결했습니다. DB 배포에는 Recreate 전략을 적용해 교체 과정에서 기존 DB Pod 먼저 종료하도록 했습니다.
+- 웹과 DB를 함께 배포할 때 PostgreSQL 초기화가 끝나는 시점이 달라 연결 준비 상태를 고려해야 했습니다. 일시적인 DB 오류는 최대 90초 동안 재시도하도록 구현하고 DB 초기화가 완료된 뒤 readiness 검사를 통과하도록 구성했습니다.
 
 ## 7. AI·참고자료 활용 내역
 
