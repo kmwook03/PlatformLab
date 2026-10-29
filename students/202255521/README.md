@@ -91,7 +91,6 @@ OpenShift 콘솔의 `Copy login command`로 로그인하고 본인 프로젝트�
 
 배포 절차(`~/PlatformLab/students/202255521` 위치에서 진행합니다.)
 ```bash
-oc delete -f k8s/
 oc apply -f k8s/
 oc rollout status deployment/portfolio-db --timeout=240s
 oc rollout status deployment/personal-portfolio --timeout=240s
@@ -100,20 +99,6 @@ oc get all
 
 예상 출력
 ```bash
-bash-5.1 ~/PlatformLab/students/202255521 $ oc delete -f k8s/
-configmap "personal-portfolio-config" deleted from kmwook-dev namespace
-deployment.apps "portfolio-db" deleted from kmwook-dev namespace
-service "portfolio-db" deleted from kmwook-dev namespace
-deployment.apps "personal-portfolio" deleted from kmwook-dev namespace
-persistentvolumeclaim "portfolio-db-data" deleted from kmwook-dev namespace
-route.route.openshift.io "personal-portfolio" deleted from kmwook-dev namespace
-configmap "personal-portfolio-runtime-00" deleted from kmwook-dev namespace
-configmap "personal-portfolio-runtime-01" deleted from kmwook-dev namespace
-configmap "personal-portfolio-runtime-02" deleted from kmwook-dev namespace
-configmap "personal-portfolio-runtime-03" deleted from kmwook-dev namespace
-configmap "personal-portfolio-runtime-04" deleted from kmwook-dev namespace
-secret "portfolio-db-auth" deleted from kmwook-dev namespace
-service "personal-portfolio" deleted from kmwook-dev namespace
 bash-5.1 ~/PlatformLab/students/202255521 $ oc apply -f k8s/
 configmap/personal-portfolio-config created
 deployment.apps/portfolio-db created
@@ -224,8 +209,8 @@ curl https://ROUTE_HOST/api/guestbook
 
 ## 7. AI·참고자료 활용 내역
 
-- OpenAI Codex(ChatGPT 6.1 sol): 방명록 서버, DB, 배포 파일 개발에 사용했습니다. 추가로 
+- OpenAI Codex(ChatGPT 6.1 sol): 방명록 서버, DB, 배포 파일 개발에 사용했습니다.
 - [OpenShift CLI 문서](https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/cli_tools/openshift-cli-oc): 로그인, 배포, 조회에 사용되는 명령어를 참고했습니다.
-- [OpenShift Route 문서](https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/ingress_and_load_balancing/routes): Service 외부 공개와 edge TLS.
+- [OpenShift Route 문서](https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/ingress_and_load_balancing/routes): Service 외부 공개와 edge TLS 설정에 참고했습니다.
 - [SCLorg PostgreSQL 이미지 문서](https://github.com/sclorg/postgresql-container/blob/master/16/root/usr/share/container-scripts/postgresql/README.md): 홈페이지 개발 중 DB 환경변수와 데이터 경로를 참고했습니다.
 - [Kubernetes ConfigMap](https://kubernetes.io/docs/concepts/configuration/configmap/), [Secret](https://kubernetes.io/docs/concepts/configuration/secret/), [영속 볼륨](https://kubernetes.io/docs/concepts/storage/persistent-volumes/): 설정, 인증, DB 데이터 보존 방식을 참고했습니다.
